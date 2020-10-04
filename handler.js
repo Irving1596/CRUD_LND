@@ -3,10 +3,6 @@ const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const uuid = require('uuid');
 AWS.config.setPromisesDependency(require('bluebird'));
-const header = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Credentials": true,
-};
 module.exports.hello = async event => {
     return {
         statusCode: 200,
@@ -66,9 +62,7 @@ module.exports.agregar = async event => {
             TableName: process.env.USUARIOS_TABLE,
             Item: usuario,
         };
-        console.log(" candidate", candidateInfo);
         let result = await dynamoDb.put(candidateInfo).promise();
-
         console.log(">>>>>>>>>", result);
         return {
             headers: {
@@ -98,46 +92,6 @@ module.exports.agregar = async event => {
     }
 }
 
-
-
-/*
-
-submitCandidateP(candidateInfo(fullname, email, experience))
-    .then(res => {
-        () => {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: `Usuario registrado satisfactoriamente ${email}`,
-                candidateId: res.id
-            })
-        };
-    })
-    .catch(err => {
-        console.log(err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: `Unable to submit candidate with email ${email}`,
-                ERR: err
-            })
-        }
-    });
-
-}
-
-const submitCandidateP = candidate => {
-    console.log('Registrando usuario');
-    const candidateInfo = {
-        TableName: process.env.USUARIOS_TABLE,
-        Item: candidate,
-    };
-    console.log('tabla', candidateInfo);
-    const res = await dynamoDb.put(candidateInfo).promise()
-    console.log('res', res);
-    return res;
-};
-*/
-
 function getBodyUsuario(req) {
     const timestamp = new Date().getTime();
     const bodyUsuario = {
@@ -150,5 +104,3 @@ function getBodyUsuario(req) {
     };
     return bodyUsuario;
 };
-// Use this code if you don't use the http event with the LAMBDA-PROXY integration
-// return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
