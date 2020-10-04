@@ -1,0 +1,75 @@
+# Maintance Irving Sanchez irving.sanchezp@up.ac.pa
+
+service: crudlnd
+
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
+  environment:
+    USUARIOS_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+
+
+
+functions:
+  crearItems:
+    handler: handler.agregar
+    memorySize: 128
+    description: Se agregan nuevos items
+    events:
+      - http:
+         path: agregar
+         method: post
+  obtenerItems:
+    handler: handler.getAll
+    memorySize: 128
+    description: Se obtiene todos los items
+    events:
+      - http:
+         path: getAll
+         method: get
+  holaMundo:
+    handler: handler.hello
+    memorySize: 128
+    description: Hola mundo
+    events:
+      - http:
+         path: helloWorld
+         method: get
+         
+
+resources:
+  Resources:
+    ItemsDynamoTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+        KeySchema:
+        -
+          AttributeName: "id"   # Partition Key
+          KeyType: "HASH"
+        ProvisionedThroughput:  # Optional, can be skipped
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.USUARIOS_TABLE}
+
+
+
+
+
+
+
+
