@@ -1,2 +1,2 @@
 # CRUD_LND
-CRUD usando Node.js-Dynamo-Lambda
+CRUD usando Lambda-Node.js-Dynamo
