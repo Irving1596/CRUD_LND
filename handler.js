@@ -92,15 +92,116 @@ module.exports.agregar = async event => {
     }
 }
 
+module.exports.actualizar = async event => {
+    try {
+        const requestBody = JSON.parse(event.body);
+        const ID = event.queryStringParameters.id;
+        let usuario = updateBodyUsuario(requestBody);
+        let params = {
+            TableName: process.env.USUARIOS_TABLE,
+            Key: {
+                id: ID
+            },
+            UpdateExpression: "set fullname = :fullname",
+            ExpressionAttributeValues: {
+                ":fullname": usuario.fullname
+            },
+            ReturnValues: "UPDATED_NEW"
+        };
+        let result = await dynamoDb.update(params).promise();
+
+        console.log(">>>>>>>>>", result);
+        return {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+            },
+            statusCode: 200,
+            body: JSON.stringify({
+                OK: true,
+                MSG: "Usuario Actualizado",
+                DATA: result
+            }),
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+            },
+            statusCode: 500,
+            body: JSON.stringify({
+                OK: false,
+                message: `Error en el servidor`,
+                ERR: error
+            })
+        }
+    }
+}
+
+module.exports.eliminar = async event => {
+    try {
+        const ID = event.pathParameters.id;
+        console.log("ID", ID);
+        let params = {
+            TableName: process.env.USUARIOS_TABLE,
+            Key: {
+                id: ID
+            }
+        };
+        let result = await dynamoDb.delete(params).promise();
+
+        console.log(">>>>>>>>>", result);
+        return {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+            },
+            statusCode: 200,
+            body: JSON.stringify({
+                OK: true,
+                MSG: "Usuario Eliminado"
+            }),
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+            },
+            statusCode: 500,
+            body: JSON.stringify({
+                OK: false,
+                message: `Error en el servidor`,
+                ERR: error
+            })
+        }
+    }
+}
+
 function getBodyUsuario(req) {
     const timestamp = new Date().getTime();
-    const bodyUsuario = {
+    let bodyUsuario = {
         id: uuid.v1(),
         fullname: req.NOMBRE,
         // email: email,
         //experience: experience,
         createdAt: timestamp,
         //  updatedAt: timestamp,
+    };
+    return bodyUsuario;
+};
+
+function updateBodyUsuario(req) {
+    const timestamp = new Date().getTime();
+    let bodyUsuario = {
+        fullname: req.NOMBRE,
+        // email: email,
+        //experience: experience,
+        // createdAt: timestamp,
+        updatedAt: timestamp
     };
     return bodyUsuario;
 };
